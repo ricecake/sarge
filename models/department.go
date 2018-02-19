@@ -7,7 +7,7 @@ import (
 
 type Department struct {
 	Name   string `gorm:"column:dept_name"`
-	Number uint   `gorm:"column:dept_no"`
+	Number string `gorm:"column:dept_no"`
 }
 
 func (Department) TableName() string {
