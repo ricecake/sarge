@@ -7,10 +7,10 @@ import (
 )
 
 type Salary struct {
-	EmployeeNumber uint      `gorm:column:emp_no`
-	Salary         float64   `gorm:column:salary`
-	StartDate      time.Time `gorm:column:from_date`
-	EndDate        time.Time `gorm:column:to_date`
+	EmployeeNumber uint      `gorm:"column:emp_no"`
+	Salary         float64   `gorm:"column:salary"`
+	StartDate      time.Time `gorm:"column:from_date"`
+	EndDate        time.Time `gorm:"column:to_date"`
 }
 
 func (Salary) TableName() string {
