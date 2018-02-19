@@ -46,17 +46,11 @@ var _ = Describe("Sarge", func() {
 							{
 								Once:    true,
 								Pattern: "SELECT * FROM \"employees\"",
-								Response: []map[string]interface{}{{ "emp_no": 1 }},
-							},
-							{
-								Once:    true,
-								Pattern: "SELECT * FROM \"employees\"",
-								Response: []map[string]interface{}{{ "emp_no": 2 }},
-							},
-							{
-								Once:    true,
-								Pattern: "SELECT * FROM \"employees\"",
-								Response: []map[string]interface{}{{ "emp_no": 3 }},
+								Response: []map[string]interface{}{
+									{ "emp_no": 1 },
+									{ "emp_no": 2 },
+									{ "emp_no": 3 },
+								},
 							},
 						})
 						emps, _ := testDept.GetEmployeeByTimeRange(makeTime("2011-01-01"), makeTime("2011-04-01"))

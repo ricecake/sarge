@@ -34,9 +34,13 @@ func (this Department) GetEmployeeByTimeRange(from time.Time, to time.Time) (emp
 		).
 		Find(&assignments)
 
+	var employeeNumbers []uint
+
 	for _, assignment := range assignments {
-		employees = append(employees, assignment.Employee())
+		employeeNumbers = append(employeeNumbers, assignment.EmployeeNumber)
 	}
+
+	db.Where("emp_no in (?)", employeeNumbers).Find(&employees)
 
 	return employees, nil
 }
