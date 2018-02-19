@@ -44,3 +44,19 @@ func (this Department) GetEmployeeByTimeRange(from time.Time, to time.Time) (emp
 
 	return employees, nil
 }
+
+func (this Department) GetSalaryByTimeRange(from time.Time, to time.Time) (rangeSalary float64, err error) {
+	rangeEmployees, assignmentErr := this.GetEmployeeByTimeRange(from, to)
+	if assignmentErr != nil {
+		return rangeSalary, assignmentErr
+	}
+
+	for _, employee := range rangeEmployees {
+		salary, salaryErr := employee.GetSalaryByTimeRange(from, to)
+		if salaryErr != nil {
+			return rangeSalary, salaryErr
+		}
+		rangeSalary += salary
+	}
+	return rangeSalary, nil
+}

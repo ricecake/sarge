@@ -11,20 +11,20 @@ import (
 
 var _ = Describe("Sarge", func() {
 	Describe("DB Model", func() {
+		mocket.Catcher.Register()
+		db, err := gorm.Open(mocket.DRIVER_NAME, "A mocked connection")
+		if err != nil {
+			Fail("Failed to mock db!")
+		}
+		SetDb(db)
 		BeforeEach(func() {
-			mocket.Catcher.Register()
-			db, err := gorm.Open(mocket.DRIVER_NAME, "A mocked connection")
-			if err != nil {
-				Fail("Failed to mock db!")
-			}
-			SetDb(db)
+			mocket.Catcher.Reset()
 		})
 		Describe("Department Struct", func() {
 			var (
 				testDept Department
 			)
 			BeforeEach(func() {
-				mocket.Catcher.Reset()
 				testDept = Department{
 					Name:   "Fictitious Activities",
 					Number: "d042",
@@ -60,6 +60,51 @@ var _ = Describe("Sarge", func() {
 							ids = append(ids, emp.Number)
 						}
 						Expect(ids).To(ConsistOf([]uint{1,2,3}))
+					})
+				})
+			})
+			Describe("GetSalaryByTimeRange", func(){
+				Context("Simple employment/salary", func(){
+					It("Calculates expected departmental salary for time range", func(){
+						mocket.Catcher.Attach([]*mocket.FakeResponse{
+							{
+								Once:    false,
+								Pattern: "SELECT * FROM \"dept_emp\"  WHERE",
+								Response: []map[string]interface{}{
+									{ "emp_no": 1 },
+									{ "emp_no": 2 },
+									{ "emp_no": 3 },
+									{ "emp_no": 4 },
+								},
+							},
+							{
+								Once:    false,
+								Pattern: "SELECT * FROM \"employees\"",
+								Response: []map[string]interface{}{
+									{ "emp_no": 1 },
+									{ "emp_no": 2 },
+									{ "emp_no": 3 },
+									{ "emp_no": 4 },
+								},
+							},
+							{
+								Once:    false,
+								Pattern: "SELECT * FROM \"salaries\"  WHERE",
+								Response: []map[string]interface{}{
+									{
+										"salary":    52000.00,
+										"from_date": makeTime("2011-01-01"),
+										"to_date":   makeTime("2012-01-01"),
+									},
+								},
+							},
+
+						})
+						Q1, _ := testDept.GetSalaryByTimeRange(makeTime("2011-01-01"), makeTime("2011-04-01"))
+						Q2, _ := testDept.GetSalaryByTimeRange(makeTime("2011-04-01"), makeTime("2011-07-01"))
+						Q3, _ := testDept.GetSalaryByTimeRange(makeTime("2011-07-01"), makeTime("2011-10-01"))
+						Q4, _ := testDept.GetSalaryByTimeRange(makeTime("2011-10-01"), makeTime("2012-01-01"))
+						Expect(Q1 + Q2 + Q3 + Q4).To(Equal(208000.00))
 					})
 				})
 			})
