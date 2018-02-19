@@ -148,24 +148,40 @@ var _ = Describe("Sarge", func() {
 			})
 		})
 		Describe("Salary Struct", func() {
+			var (
+				testSalary Salary
+			)
+			BeforeEach(func() {
+				testSalary = Salary{
+					EmployeeNumber: 0,
+					Salary:         75000.00,
+					StartDate:      makeTime("2015-01-01"),
+					EndDate:        makeTime("2016-01-01"),
+				}
+			})
 			Describe("Basic Helpers", func() {
-				var (
-					testSalary Salary
-				)
-				BeforeEach(func() {
-					testSalary = Salary{
-						EmployeeNumber: 0,
-						Salary:         75000.00,
-						StartDate:      makeTime("2015-01-01"),
-						EndDate:        makeTime("2016-01-01"),
-					}
-				})
-
 				It("Should Calculate salary duration", func() {
 					Expect(testSalary.Duration()).To(Equal(uint(365)))
 				})
 				It("Should Calculate correct daily rate", func() {
 					Expect(testSalary.DailyRate()).To(Equal(75000.00 / 365))
+				})
+			})
+			Describe("Edge cases", func(){
+				It("Should recognize leap years", func(){
+					testSalary.StartDate = makeTime("2016-01-01")
+					testSalary.EndDate = makeTime("2017-01-01")
+					Expect(testSalary.Duration()).To(Equal(uint(366)))
+				})
+				It("handles fractional years", func(){
+					testSalary.StartDate = makeTime("2015-01-01")
+					testSalary.EndDate = makeTime("2015-02-01")
+					Expect(testSalary.Duration()).To(Equal(uint(31)))
+				})
+				It("handles misaligned date boundries", func(){
+					testSalary.StartDate = makeTime("2015-06-15")
+					testSalary.EndDate = makeTime("2015-11-09")
+					Expect(testSalary.Duration()).To(Equal(uint(147)))
 				})
 			})
 		})
