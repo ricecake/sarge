@@ -45,28 +45,16 @@ var _ = Describe("Sarge", func() {
 									{
 										"emp_no":    5,
 										"salary":    52000.00,
-										"from_date": time.Date(2009, time.January, 1, 0, 0, 0, 0, time.UTC),
-										"to_date":   time.Date(2010, time.January, 1, 0, 0, 0, 0, time.UTC),
+										"from_date": makeTime("2009-01-01"),
+										"to_date":   makeTime("2010-01-01"),
 									},
 								},
 							},
 						})
-						Q1, _ := easyEmployee.GetSalaryByTimeRange(
-							time.Date(2009, time.January, 1, 0, 0, 0, 0, time.UTC),
-							time.Date(2009, time.April, 1, 0, 0, 0, 0, time.UTC),
-						)
-						Q2, _ := easyEmployee.GetSalaryByTimeRange(
-							time.Date(2009, time.April, 1, 0, 0, 0, 0, time.UTC),
-							time.Date(2009, time.July, 1, 0, 0, 0, 0, time.UTC),
-						)
-						Q3, _ := easyEmployee.GetSalaryByTimeRange(
-							time.Date(2009, time.July, 1, 0, 0, 0, 0, time.UTC),
-							time.Date(2009, time.October, 1, 0, 0, 0, 0, time.UTC),
-						)
-						Q4, _ := easyEmployee.GetSalaryByTimeRange(
-							time.Date(2009, time.October, 1, 0, 0, 0, 0, time.UTC),
-							time.Date(2010, time.January, 1, 0, 0, 0, 0, time.UTC),
-						)
+						Q1, _ := easyEmployee.GetSalaryByTimeRange(makeTime("2009-01-01"), makeTime("2009-04-01"))
+						Q2, _ := easyEmployee.GetSalaryByTimeRange(makeTime("2009-04-01"), makeTime("2009-07-01"))
+						Q3, _ := easyEmployee.GetSalaryByTimeRange(makeTime("2009-07-01"), makeTime("2009-10-01"))
+						Q4, _ := easyEmployee.GetSalaryByTimeRange(makeTime("2009-10-01"), makeTime("2010-01-01"))
 						Expect(Q1 + Q2 + Q3 + Q4).To(Equal(52000.00))
 					})
 				})
@@ -81,16 +69,8 @@ var _ = Describe("Sarge", func() {
 					testSalary = Salary{
 						EmployeeNumber: 0,
 						Salary:         75000.00,
-					}
-					if start, parseErr := time.Parse("2006-01-02", "2015-01-01"); parseErr == nil {
-						testSalary.StartDate = start
-					} else {
-						Fail("Invalid Start Date")
-					}
-					if end, parseErr := time.Parse("2006-01-02", "2016-01-01"); parseErr == nil {
-						testSalary.EndDate = end
-					} else {
-						Fail("Invalid End Date")
+						StartDate:      makeTime("2015-01-01"),
+						EndDate:        makeTime("2016-01-01"),
 					}
 				})
 
@@ -104,3 +84,12 @@ var _ = Describe("Sarge", func() {
 		})
 	})
 })
+
+func makeTime(stringTime string) time.Time {
+	timeStruct, parseErr := time.Parse("2006-01-02", stringTime)
+	if parseErr != nil {
+		Fail("Invalid time specified!")
+	}
+
+	return timeStruct
+}
