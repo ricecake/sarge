@@ -30,26 +30,26 @@ var _ = Describe("Sarge", func() {
 					Number: "d042",
 				}
 			})
-			Describe("GetEmployeeByTimeRange", func(){
-				Context("Simple lookups", func(){
-					It("Translates department assignments to employees", func(){
+			Describe("GetEmployeeByTimeRange", func() {
+				Context("Simple lookups", func() {
+					It("Translates department assignments to employees", func() {
 						mocket.Catcher.Attach([]*mocket.FakeResponse{
 							{
 								Once:    true,
 								Pattern: "SELECT * FROM \"dept_emp\"  WHERE",
 								Response: []map[string]interface{}{
-									{ "emp_no": 1 },
-									{ "emp_no": 2 },
-									{ "emp_no": 3 },
+									{"emp_no": 1},
+									{"emp_no": 2},
+									{"emp_no": 3},
 								},
 							},
 							{
 								Once:    true,
 								Pattern: "SELECT * FROM \"employees\"",
 								Response: []map[string]interface{}{
-									{ "emp_no": 1 },
-									{ "emp_no": 2 },
-									{ "emp_no": 3 },
+									{"emp_no": 1},
+									{"emp_no": 2},
+									{"emp_no": 3},
 								},
 							},
 						})
@@ -59,32 +59,32 @@ var _ = Describe("Sarge", func() {
 						for _, emp := range emps {
 							ids = append(ids, emp.Number)
 						}
-						Expect(ids).To(ConsistOf([]uint{1,2,3}))
+						Expect(ids).To(ConsistOf([]uint{1, 2, 3}))
 					})
 				})
 			})
-			Describe("GetSalaryByTimeRange", func(){
-				Context("Simple employment/salary", func(){
-					It("Calculates expected departmental salary for time range", func(){
+			Describe("GetSalaryByTimeRange", func() {
+				Context("Simple employment/salary", func() {
+					It("Calculates expected departmental salary for time range", func() {
 						mocket.Catcher.Attach([]*mocket.FakeResponse{
 							{
 								Once:    false,
 								Pattern: "SELECT * FROM \"dept_emp\"  WHERE",
 								Response: []map[string]interface{}{
-									{ "emp_no": 1 },
-									{ "emp_no": 2 },
-									{ "emp_no": 3 },
-									{ "emp_no": 4 },
+									{"emp_no": 1},
+									{"emp_no": 2},
+									{"emp_no": 3},
+									{"emp_no": 4},
 								},
 							},
 							{
 								Once:    false,
 								Pattern: "SELECT * FROM \"employees\"",
 								Response: []map[string]interface{}{
-									{ "emp_no": 1 },
-									{ "emp_no": 2 },
-									{ "emp_no": 3 },
-									{ "emp_no": 4 },
+									{"emp_no": 1},
+									{"emp_no": 2},
+									{"emp_no": 3},
+									{"emp_no": 4},
 								},
 							},
 							{
@@ -98,7 +98,6 @@ var _ = Describe("Sarge", func() {
 									},
 								},
 							},
-
 						})
 						Q1, _ := testDept.GetSalaryByTimeRange(makeTime("2011-01-01"), makeTime("2011-04-01"))
 						Q2, _ := testDept.GetSalaryByTimeRange(makeTime("2011-04-01"), makeTime("2011-07-01"))
