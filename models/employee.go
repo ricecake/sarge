@@ -28,7 +28,7 @@ func (this Employee) GetSalaryByTimeRange(from time.Time, to time.Time) (rangeSa
 	var salaries []Salary
 	db.
 		Where(&Salary{EmployeeNumber: this.Number}).
-		Where(`(from_date <= ? and to_date >= ?),
+		Where(`(from_date <= ? and to_date >= ?)
 		or (from_date <= ? and to_date >= ?)
 		or (from_date >= ? and to_date <= ?)
 		or (from_date <= ? and to_date >= ?)`,
