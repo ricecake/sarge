@@ -22,7 +22,11 @@ func Connect() (*gorm.DB, error) {
 	return db, err
 }
 
-func GetDb() (*gorm.DB) {
+func SetDb(newDb *gorm.DB) {
+	db = newDb
+}
+
+func GetDb() *gorm.DB {
 	if db == nil {
 		if _, err := Connect(); err != nil {
 			panic(err)
