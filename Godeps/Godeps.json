@@ -9,6 +9,11 @@
 			"Rev": "c2828203cd70a50dcccfb2761f8b1f8ceef9a8e9"
 		},
 		{
+			"ImportPath": "github.com/go-sql-driver/mysql",
+			"Comment": "v1.3-54-gbc14601",
+			"Rev": "bc14601d1bd56421dd60f561e6052c9ed77f9daf"
+		},
+		{
 			"ImportPath": "github.com/hashicorp/hcl",
 			"Rev": "23c074d0eceb2b8a5bfdbb271ab780cde70f05a8"
 		},
@@ -52,6 +57,20 @@
 			"ImportPath": "github.com/inconshreveable/mousetrap",
 			"Comment": "v1.0",
 			"Rev": "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75"
+		},
+		{
+			"ImportPath": "github.com/jinzhu/gorm",
+			"Comment": "v1.0-249-g58e3472",
+			"Rev": "58e34726dfc069b558038efbaa25555f182d1f7a"
+		},
+		{
+			"ImportPath": "github.com/jinzhu/gorm/dialects/mysql",
+			"Comment": "v1.0-249-g58e3472",
+			"Rev": "58e34726dfc069b558038efbaa25555f182d1f7a"
+		},
+		{
+			"ImportPath": "github.com/jinzhu/inflection",
+			"Rev": "1c35d901db3da928c72a72d8458480cc9ade058f"
 		},
 		{
 			"ImportPath": "github.com/magiconair/properties",
@@ -220,6 +239,11 @@
 			"ImportPath": "github.com/pelletier/go-toml",
 			"Comment": "v1.1.0",
 			"Rev": "acdc4509485b587f5e675510c4f2c63e90ff68a8"
+		},
+		{
+			"ImportPath": "github.com/selvatico/go-mocket",
+			"Comment": "v1.0.4",
+			"Rev": "82e79c17561f0da018597afa0f51c993ee8d01d0"
 		},
 		{
 			"ImportPath": "github.com/spf13/afero",
