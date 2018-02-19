@@ -1,7 +1,6 @@
 package main_test
 
 import (
-	"fmt"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/ricecake/sarge/models"
@@ -23,7 +22,7 @@ var _ = Describe("Sarge", func() {
 				BeforeEach(func() {
 					testSalary = Salary{
 						EmployeeNumber: 0,
-						Salary:         75000,
+						Salary:         75000.00,
 					}
 					if start, parseErr := time.Parse("2006-01-02", "2015-01-01"); parseErr == nil {
 						testSalary.StartDate = start
@@ -39,6 +38,9 @@ var _ = Describe("Sarge", func() {
 
 				It("Should Calculate salary duration", func() {
 					Expect(testSalary.Duration()).To(Equal(uint(365)))
+				})
+				It("Should Calculate correct daily rate", func(){
+					Expect(testSalary.DailyRate()).To(Equal(75000.00/365))
 				})
 			})
 		})
