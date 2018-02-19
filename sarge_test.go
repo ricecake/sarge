@@ -67,7 +67,7 @@ var _ = Describe("Sarge", func() {
 							time.Date(2009, time.October, 1, 0, 0, 0, 0, time.UTC),
 							time.Date(2010, time.January, 1, 0, 0, 0, 0, time.UTC),
 						)
-						Expect(Q1+Q2+Q3+Q4).To(Equal(52000.00))
+						Expect(Q1 + Q2 + Q3 + Q4).To(Equal(52000.00))
 					})
 				})
 			})

@@ -21,29 +21,29 @@ func (Employee) TableName() string {
 
 func (this Employee) GetSalaryByTimeRange(from time.Time, to time.Time) (rangeSalary float64, err error) {
 	startWindow := from.Format("2006-01-02")
-	endWindow   := to.Format("2006-01-02")
+	endWindow := to.Format("2006-01-02")
 
-	db:= GetDb()
+	db := GetDb()
 
-	var salaries [] Salary
+	var salaries []Salary
 	db.
-	Where(&Salary{EmployeeNumber: this.Number}).
-	Where(`(from_date <= ? and to_date >= ?),
+		Where(&Salary{EmployeeNumber: this.Number}).
+		Where(`(from_date <= ? and to_date >= ?),
 		or (from_date <= ? and to_date >= ?)
 		or (from_date >= ? and to_date <= ?)
 		or (from_date <= ? and to_date >= ?)`,
-		startWindow, startWindow,
-		startWindow, endWindow,
-		startWindow, endWindow,
-		endWindow, endWindow,
-	).
-	Find(&salaries)
+			startWindow, startWindow,
+			startWindow, endWindow,
+			startWindow, endWindow,
+			endWindow, endWindow,
+		).
+		Find(&salaries)
 
 	var total float64
 
 	for _, salary := range salaries {
 		start := salary.StartDate
-		end   := salary.EndDate
+		end := salary.EndDate
 		if start.Equal(from) && end.Equal(to) {
 			//Easy Mode
 			total += salary.Salary
