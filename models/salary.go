@@ -16,3 +16,8 @@ type Salary struct {
 func (Salary) TableName() string {
 	return "salaries"
 }
+
+func (this Salary) Duration() uint {
+	rawDuration := this.EndDate.Sub(this.StartDate)
+	return uint(rawDuration.Hours() / 24)
+}
