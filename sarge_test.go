@@ -20,6 +20,55 @@ var _ = Describe("Sarge", func() {
 			SetDb(db)
 		})
 		Describe("Department Struct", func() {
+			var (
+				testDept Department
+			)
+			BeforeEach(func() {
+				mocket.Catcher.Reset()
+				testDept = Department{
+					Name:   "Fictitious Activities",
+					Number: "d042",
+				}
+			})
+			Describe("GetEmployeeByTimeRange", func(){
+				Context("Simple lookups", func(){
+					It("Translates department assignments to employees", func(){
+						mocket.Catcher.Attach([]*mocket.FakeResponse{
+							{
+								Once:    true,
+								Pattern: "SELECT * FROM \"dept_emp\"  WHERE",
+								Response: []map[string]interface{}{
+									{ "emp_no": 1 },
+									{ "emp_no": 2 },
+									{ "emp_no": 3 },
+								},
+							},
+							{
+								Once:    true,
+								Pattern: "SELECT * FROM \"employees\"",
+								Response: []map[string]interface{}{{ "emp_no": 1 }},
+							},
+							{
+								Once:    true,
+								Pattern: "SELECT * FROM \"employees\"",
+								Response: []map[string]interface{}{{ "emp_no": 2 }},
+							},
+							{
+								Once:    true,
+								Pattern: "SELECT * FROM \"employees\"",
+								Response: []map[string]interface{}{{ "emp_no": 3 }},
+							},
+						})
+						emps, _ := testDept.GetEmployeeByTimeRange(makeTime("2011-01-01"), makeTime("2011-04-01"))
+
+						var ids []uint
+						for _, emp := range emps {
+							ids = append(ids, emp.Number)
+						}
+						Expect(ids).To(ConsistOf([]uint{1,2,3}))
+					})
+				})
+			})
 		})
 		Describe("Employee Struct", func() {
 			var (
