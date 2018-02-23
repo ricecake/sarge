@@ -1,6 +1,7 @@
 package models
 
 import (
+	"math/big"
 	"time"
 	//"github.com/spf13/viper"
 )
@@ -51,12 +52,18 @@ func (this Department) GetSalaryByTimeRange(from time.Time, to time.Time) (range
 		return rangeSalary, assignmentErr
 	}
 
+	total := new(big.Float)
+	total.SetMode(big.AwayFromZero)
+	total.SetPrec(128)
+
 	for _, employee := range rangeEmployees {
 		salary, salaryErr := employee.GetSalaryByTimeRange(from, to)
 		if salaryErr != nil {
 			return rangeSalary, salaryErr
 		}
-		rangeSalary += salary
+		total.Add(total, big.NewFloat(salary))
 	}
-	return rangeSalary, nil
+
+	totalFloat, _ := total.Float64()
+	return totalFloat, nil
 }

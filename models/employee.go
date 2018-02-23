@@ -1,6 +1,7 @@
 package models
 
 import (
+	"math/big"
 	"time"
 	//"github.com/jinzhu/gorm"
 	//"github.com/spf13/viper"
@@ -39,14 +40,16 @@ func (this Employee) GetSalaryByTimeRange(from time.Time, to time.Time) (rangeSa
 		).
 		Find(&salaries)
 
-	var total float64
+	total := new(big.Float)
+	total.SetMode(big.AwayFromZero)
+	total.SetPrec(128)
 
 	for _, salary := range salaries {
 		start := salary.StartDate
 		end := salary.EndDate
 		if start.Equal(from) && end.Equal(to) {
 			//Easy Mode
-			total += salary.Salary
+			total.Add(total, big.NewFloat(float64(salary.Salary)))
 		} else {
 			var intervalStart time.Time
 			var intervalStop time.Time
@@ -62,11 +65,13 @@ func (this Employee) GetSalaryByTimeRange(from time.Time, to time.Time) (rangeSa
 			}
 
 			interval := intervalStop.Sub(intervalStart)
-			intervalSalary := salary.DailyRate() * (interval.Hours() / 24)
+			dailyRate := big.NewFloat(salary.DailyRate())
+			intervalSalary := new(big.Float).Mul(dailyRate, big.NewFloat(interval.Hours()/24))
 
-			total += intervalSalary
+			total.Add(total, intervalSalary)
 		}
 	}
 
-	return total, nil
+	totalFloat, _ := total.Float64()
+	return totalFloat, nil
 }
