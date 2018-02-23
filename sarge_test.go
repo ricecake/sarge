@@ -183,6 +183,11 @@ var _ = Describe("Sarge", func() {
 					testSalary.EndDate = makeTime("2015-11-09")
 					Expect(testSalary.Duration()).To(Equal(uint(147)))
 				})
+				It("handles very short ranged", func() {
+					testSalary.StartDate = makeTime("2015-01-01")
+					testSalary.EndDate = makeTime("2015-01-02")
+					Expect(testSalary.Duration()).To(Equal(uint(1)))
+				})
 			})
 		})
 	})
