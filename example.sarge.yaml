@@ -1,0 +1,6 @@
+db:
+  username: ExampleUsername
+  password: ExampleP@ssword!
+  database: employees
+  host: localhost
+
