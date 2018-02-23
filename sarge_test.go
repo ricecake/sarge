@@ -1,11 +1,14 @@
 package main_test
 
 import (
+	"fmt"
 	"github.com/jinzhu/gorm"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/onsi/gomega/types"
 	. "github.com/ricecake/sarge/models"
 	mocket "github.com/selvatico/go-mocket"
+	"math"
 	"time"
 )
 
@@ -106,6 +109,48 @@ var _ = Describe("Sarge", func() {
 						Expect(Q1 + Q2 + Q3 + Q4).To(Equal(208000.00))
 					})
 				})
+				Context("complex employment/salary", func() {
+					It("Calculates expected departmental salary for time range", func() {
+						mocket.Catcher.Attach([]*mocket.FakeResponse{
+							{
+								Once:    false,
+								Pattern: "SELECT * FROM \"dept_emp\"  WHERE",
+								Response: []map[string]interface{}{
+									{"emp_no": 1},
+									{"emp_no": 2},
+									{"emp_no": 3},
+									{"emp_no": 4},
+								},
+							},
+							{
+								Once:    false,
+								Pattern: "SELECT * FROM \"employees\"",
+								Response: []map[string]interface{}{
+									{"emp_no": 1},
+									{"emp_no": 2},
+									{"emp_no": 3},
+									{"emp_no": 4},
+								},
+							},
+							{
+								Once:    false,
+								Pattern: "SELECT * FROM \"salaries\"  WHERE",
+								Response: []map[string]interface{}{
+									{
+										"salary":    100000,
+										"from_date": makeTime("2011-01-01"),
+										"to_date":   makeTime("2012-01-01"),
+									},
+								},
+							},
+						})
+						Q1, _ := testDept.GetSalaryByTimeRange(makeTime("2011-01-01"), makeTime("2011-04-01"))
+						Q2, _ := testDept.GetSalaryByTimeRange(makeTime("2011-04-01"), makeTime("2011-07-01"))
+						Q3, _ := testDept.GetSalaryByTimeRange(makeTime("2011-07-01"), makeTime("2011-10-01"))
+						Q4, _ := testDept.GetSalaryByTimeRange(makeTime("2011-10-01"), makeTime("2012-01-01"))
+						Expect(Q1 + Q2 + Q3 + Q4).To(EqualFloatWithMargin(400000.00, 0.0000001))
+					})
+				})
 			})
 		})
 		Describe("Employee Struct", func() {
@@ -142,7 +187,30 @@ var _ = Describe("Sarge", func() {
 						Q2, _ := easyEmployee.GetSalaryByTimeRange(makeTime("2009-04-01"), makeTime("2009-07-01"))
 						Q3, _ := easyEmployee.GetSalaryByTimeRange(makeTime("2009-07-01"), makeTime("2009-10-01"))
 						Q4, _ := easyEmployee.GetSalaryByTimeRange(makeTime("2009-10-01"), makeTime("2010-01-01"))
-						Expect(Q1 + Q2 + Q3 + Q4).To(Equal(52000.00))
+						Expect(Q1 + Q2 + Q3 + Q4).To(EqualFloatWithMargin(52000.00, 0.0000001))
+					})
+				})
+				Context("complex money", func() {
+					It("Returns expected quarterly salary", func() {
+						mocket.Catcher.Attach([]*mocket.FakeResponse{
+							{
+								Once:    false,
+								Pattern: "SELECT * FROM \"salaries\"  WHERE",
+								Response: []map[string]interface{}{
+									{
+										"emp_no":    5,
+										"salary":    10000.00,
+										"from_date": makeTime("2009-01-01"),
+										"to_date":   makeTime("2010-01-01"),
+									},
+								},
+							},
+						})
+						Q1, _ := easyEmployee.GetSalaryByTimeRange(makeTime("2009-01-01"), makeTime("2009-04-01"))
+						Q2, _ := easyEmployee.GetSalaryByTimeRange(makeTime("2009-04-01"), makeTime("2009-07-01"))
+						Q3, _ := easyEmployee.GetSalaryByTimeRange(makeTime("2009-07-01"), makeTime("2009-10-01"))
+						Q4, _ := easyEmployee.GetSalaryByTimeRange(makeTime("2009-10-01"), makeTime("2010-01-01"))
+						Expect(Q1 + Q2 + Q3 + Q4).To(EqualFloatWithMargin(10000.00, 0.0000001))
 					})
 				})
 			})
@@ -167,18 +235,18 @@ var _ = Describe("Sarge", func() {
 					Expect(testSalary.DailyRate()).To(Equal(75000.00 / 365))
 				})
 			})
-			Describe("Edge cases", func(){
-				It("Should recognize leap years", func(){
+			Describe("Edge cases", func() {
+				It("Should recognize leap years", func() {
 					testSalary.StartDate = makeTime("2016-01-01")
 					testSalary.EndDate = makeTime("2017-01-01")
 					Expect(testSalary.Duration()).To(Equal(uint(366)))
 				})
-				It("handles fractional years", func(){
+				It("handles fractional years", func() {
 					testSalary.StartDate = makeTime("2015-01-01")
 					testSalary.EndDate = makeTime("2015-02-01")
 					Expect(testSalary.Duration()).To(Equal(uint(31)))
 				})
-				It("handles misaligned date boundries", func(){
+				It("handles misaligned date boundries", func() {
 					testSalary.StartDate = makeTime("2015-06-15")
 					testSalary.EndDate = makeTime("2015-11-09")
 					Expect(testSalary.Duration()).To(Equal(uint(147)))
@@ -200,4 +268,32 @@ func makeTime(stringTime string) time.Time {
 	}
 
 	return timeStruct
+}
+
+func EqualFloatWithMargin(expected, margin float64) types.GomegaMatcher {
+	return &equalFloatWithMargin{
+		expected: expected,
+		margin:   margin,
+	}
+}
+
+type equalFloatWithMargin struct {
+	expected float64
+	margin   float64
+}
+
+func (matcher *equalFloatWithMargin) Match(actual interface{}) (success bool, err error) {
+	actualFloat, ok := actual.(float64)
+	if !ok {
+		return false, fmt.Errorf("EqualFloatWithMargin expects a float64!")
+	}
+
+	return math.Abs(actualFloat-matcher.expected) <= matcher.margin, nil
+}
+
+func (matcher *equalFloatWithMargin) FailureMessage(actual interface{}) (message string) {
+	return fmt.Sprintf("Expected\n\t%#v\nto be within %f of %f of\n\t%#v", actual, matcher.expected, matcher.margin)
+}
+func (matcher *equalFloatWithMargin) NegatedFailureMessage(actual interface{}) (message string) {
+	return fmt.Sprintf("Expected\n\t%#v\nnot to be within %f of %f of\n\t%#v", actual, matcher.expected, matcher.margin)
 }
